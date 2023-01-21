@@ -35,6 +35,41 @@ fn draw_line(img: &mut RgbImage,p1:(u32,u32),p2:(u32,u32),col:[u8;3])
 
 }
 
+fn draw_voronoi2(x:u32,y:u32,col:[u8;3],img: &mut RgbImage, l:u32,w:u32, points: &mut VecDeque<((u32,u32),[u8;3])>)
+{
+    println!("{},{}",x,y);
+    if img.get_pixel(x,y) == &Rgb([0,0,0])
+    {
+        img.put_pixel(x,y,Rgb(col));
+
+        //111
+        //1x1
+        //111
+
+        if (y as i32) -1 >= 0
+        {
+            //0,-1
+            points.push_back(((x,y-1),col));
+        }
+        if y+1 < l
+        {
+            //0,+1
+            points.push_back(((x,y+1),col));
+        }
+        if x+1 < w
+        {
+            //1,0
+            points.push_back(((x+1,y),col));
+        }
+        if (x as i32) -1  >= 0
+        {
+            //-1,0
+            points.push_back(((x-1,y),col));
+        }
+
+    }
+}
+
 fn draw_voronoi(x:u32,y:u32,col:[u8;3],img: &mut RgbImage, l:u32,w:u32, points: &mut VecDeque<((u32,u32),[u8;3])>)
 {
     println!("{},{}",x,y);
@@ -110,7 +145,7 @@ fn main() {
     while points.len() > 0
     {
         let point = points.pop_front().unwrap();
-        draw_voronoi(point.0.0,point.0.1,point.1, &mut img, HEIGHT, WIDTH, &mut points);
+        draw_voronoi2(point.0.0,point.0.1,point.1, &mut img, HEIGHT, WIDTH, &mut points);
     }
 
     img.save("images/output.png");
