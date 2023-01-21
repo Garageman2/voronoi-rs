@@ -1,21 +1,19 @@
 extern crate image;
-extern crate gif;
 use std::collections::VecDeque;
-use image::{Rgb, RgbImage, Pixel};
-use gif::{Encoder};
+use image::{Rgb, RgbImage};
 use rand::Rng;
 
 
 fn draw_line(img: &mut RgbImage,p1:(u32,u32),p2:(u32,u32),col:[u8;3])
 {
-    let RCol = Rgb(col);
+    let new_col = Rgb(col);
     if p2.0 == p1.0
     {
         //handles a vertical
         for y in p1.1..p2.1
         {
             let x = p2.0;
-            img.put_pixel(x,y,RCol);
+            img.put_pixel(x,y,new_col);
         }
     }
     else
@@ -25,7 +23,7 @@ fn draw_line(img: &mut RgbImage,p1:(u32,u32),p2:(u32,u32),col:[u8;3])
         for x in p1.0..p2.0
         {
             let y = ((slope * x as f32).floor() + intercept )as u32;
-            img.put_pixel(x,y,RCol);
+            img.put_pixel(x,y,new_col);
         }
 
     }
@@ -185,14 +183,10 @@ fn gen_seeds(count:u16,height:u32,width:u32,points:&mut VecDeque<((u32,u32),[u8;
 }
 
 fn main() {
-    const HEIGHT: u32 = 1024;
-    const WIDTH: u32 = 1024;
-    const SEEDS:u16 = 40;
+    const HEIGHT: u32 = 2160;
+    const WIDTH: u32 = 3840;
+    const SEEDS:u16 = 150;
     let mut img:RgbImage = RgbImage::new(WIDTH,HEIGHT);
-    // draw_line(&mut img, (0,0),(10,10),[0,0,255]);
-    // draw_line(&mut img, (10,10),(20,30),[0,0,255]);
-    // draw_line(&mut img, (0,0),(0,40),[0,0,255]);
-    // draw_line(&mut img, (0,0),(40,0),[0,0,255]);
 
     //submit a point and a color for the point suggested.
     let mut points:VecDeque<((u32,u32),[u8;3])> = VecDeque::new();
@@ -203,5 +197,6 @@ fn main() {
         draw_voronoi_with_lines(point.0.0,point.0.1,point.1, &mut img, HEIGHT, WIDTH, &mut points);
     }
 
-    img.save("images/output.png");
+    img.save("images/output.png").expect("failed to save");
+
 }
