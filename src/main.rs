@@ -37,7 +37,7 @@ fn draw_line(img: &mut RgbImage,p1:(u32,u32),p2:(u32,u32),col:[u8;3])
 
 fn draw_voronoi2(x:u32,y:u32,col:[u8;3],img: &mut RgbImage, l:u32,w:u32, points: &mut VecDeque<((u32,u32),[u8;3])>)
 {
-    println!("{},{}",x,y);
+    ///DIFFERENT METHOD FOR FILLING
     if img.get_pixel(x,y) == &Rgb([0,0,0])
     {
         img.put_pixel(x,y,Rgb(col));
@@ -120,6 +120,61 @@ fn draw_voronoi(x:u32,y:u32,col:[u8;3],img: &mut RgbImage, l:u32,w:u32, points: 
     }
 }
 
+fn draw_voronoi_with_lines(x:u32,y:u32,col:[u8;3],img: &mut RgbImage, l:u32,w:u32, points: &mut VecDeque<((u32,u32),[u8;3])>)
+{
+    let fcol = img.get_pixel(x,y);
+    if fcol == &Rgb([0,0,0])
+    {
+        img.put_pixel(x,y,Rgb(col));
+
+        if ((x as i32) -1 >= 0) && ((y as i32) -1 >= 0)
+        {
+            //-1,-1
+            points.push_back(((x-1,y-1),col));
+        }
+        if (y as i32) -1 >= 0
+        {
+            //0,-1
+            points.push_back(((x,y-1),col));
+        }
+        if (x+1 < w) && ((y as i32) -1 > 0)
+        {
+            //+1,-1
+            points.push_back(((x+1,y-1),col));
+        }
+        if y+1 < l
+        {
+            //0,+1
+            points.push_back(((x,y+1),col));
+        }
+        if x+1 < w
+        {
+            //1,0
+            points.push_back(((x+1,y),col));
+        }
+        if (x+1 < w) && (y+1 < l)
+        {
+            //1,1
+            points.push_back(((x+1,y+1),col));
+        }
+        if (x as i32) -1  >= 0
+        {
+            //-1,0
+            points.push_back(((x-1,y),col));
+        }
+        if ((x as i32) -1 >= 0) && (y+1 < l)
+        {
+            //-1,1
+            points.push_back(((x-1,y+1),col));
+        }
+
+    }
+    else if  fcol != &Rgb([255,255,255]) && fcol !=  &Rgb(col)
+    {
+        img.put_pixel(x,y,Rgb([255,255,255]));
+    }
+}
+
 fn gen_seeds(count:u16,height:u32,width:u32,points:&mut VecDeque<((u32,u32),[u8;3])>)
 {
     for _i in 0..count
@@ -130,8 +185,9 @@ fn gen_seeds(count:u16,height:u32,width:u32,points:&mut VecDeque<((u32,u32),[u8;
 }
 
 fn main() {
-    const HEIGHT: u32 = 256;
-    const WIDTH: u32 = 256;
+    const HEIGHT: u32 = 1024;
+    const WIDTH: u32 = 1024;
+    const SEEDS:u16 = 40;
     let mut img:RgbImage = RgbImage::new(WIDTH,HEIGHT);
     // draw_line(&mut img, (0,0),(10,10),[0,0,255]);
     // draw_line(&mut img, (10,10),(20,30),[0,0,255]);
@@ -140,11 +196,11 @@ fn main() {
 
     //submit a point and a color for the point suggested.
     let mut points:VecDeque<((u32,u32),[u8;3])> = VecDeque::new();
-    gen_seeds(5,HEIGHT,WIDTH,&mut points);
+    gen_seeds(SEEDS,HEIGHT,WIDTH,&mut points);
     while points.len() > 0
     {
         let point = points.pop_front().unwrap();
-        draw_voronoi(point.0.0,point.0.1,point.1, &mut img, HEIGHT, WIDTH, &mut points);
+        draw_voronoi_with_lines(point.0.0,point.0.1,point.1, &mut img, HEIGHT, WIDTH, &mut points);
     }
 
     img.save("images/output.png");
