@@ -211,7 +211,15 @@ fn draw_cells(img: &mut RgbImage, l:u32,w:u32, points: &mut VecDeque<((u32,u32),
                 }
                 else if dist < Nearest.0
                 {
-                    Nearest = (dist,Seed.1);
+                    if dist == 0.0
+                    {
+                        Nearest = (dist,[10,10,10]);
+                    }
+                    else
+                    {
+                        Nearest = (dist,Seed.1);
+                    }
+
                 }
             }
             img.put_pixel(x,y,Rgb(Nearest.1));
@@ -234,19 +242,19 @@ fn gen_seeds(count:u16,height:u32,width:u32,points:&mut VecDeque<((u32,u32),[u8;
 fn main() {
     const HEIGHT: u32 = 2160;
     const WIDTH: u32 = 3840;
-    const SEEDS:u16 = 128;
+    const SEEDS:u16 = 20;
     let mut img:RgbImage = RgbImage::new(WIDTH,HEIGHT);
 
     //submit a point and a color for the point suggested.
     let mut points:VecDeque<((u32,u32),[u8;3])> = VecDeque::new();
     gen_seeds(SEEDS,HEIGHT,WIDTH,&mut points);
-    draw_bands(&mut img, HEIGHT, WIDTH, &mut points);
+    draw_cells(&mut img, HEIGHT, WIDTH, &mut points, false);
     // while points.len() > 0
     // {
     //     let point = points.pop_front().unwrap();
     //     draw_voronoi_with_lines(point.0.0,point.0.1,point.1, &mut img, HEIGHT, WIDTH, &mut points);
     // }
 
-    img.save("images/Demo4.png").expect("failed to save");
+    img.save("images/Output.png").expect("failed to save");
 
 }
