@@ -205,11 +205,7 @@ fn draw_cells(img: &mut RgbImage, l:u32,w:u32, points: &mut VecDeque<((u32,u32),
             for Seed in points.iter()
             {
                 let mut dist:f32 = ( (y as f32 - Seed.0.1 as f32).powi(2) + (x as f32 - Seed.0.0 as f32).powi(2)).sqrt();
-                if (Nearest.0.floor() - dist.floor()).abs() <= 0.75 && lines
-                {
-                    Nearest = (dist,[255,255,255]);
-                }
-                else if dist < Nearest.0
+                if dist < Nearest.0
                 {
                     if dist == 0.0
                     {
@@ -222,8 +218,107 @@ fn draw_cells(img: &mut RgbImage, l:u32,w:u32, points: &mut VecDeque<((u32,u32),
 
                 }
             }
-            img.put_pixel(x,y,Rgb(Nearest.1));
+            &img.put_pixel(x,y,Rgb(Nearest.1));
 
+
+        }
+    }
+
+
+    //after draw
+    if lines
+    {
+        for y in 0..l
+        {
+            println!("Starting line {}", y);
+            for x in 0..w
+            {
+                let mut sample = *img.clone().get_pixel(x,y);
+                let mut border = false;
+
+                if ((x as i32) -1 >= 0) && ((y as i32) -1 >= 0)
+                {
+                    //-1,-1
+                    let alt = img.get_pixel(x-1,y-1);
+                    if *alt != sample && *alt != Rgb([255,255,255]) && *alt != Rgb([10,10,10])
+                    {
+                        img.put_pixel(x,y,Rgb([255,255,255]));
+                        border = true;
+                    }
+                }
+                if (y as i32) -1 >= 0 && !border
+                {
+                    //0,-1
+                    let alt = img.get_pixel(x,y-1);
+                    if *alt != sample && *alt != Rgb([255,255,255]) && *alt != Rgb([10,10,10])
+                    {
+                        &img.put_pixel(x,y,Rgb([255,255,255]));
+                        border = true;
+                    }
+                }
+                if (x+1 < w) && ((y as i32) -1 > 0) && !border
+                {
+                    //+1,-1
+                    let alt = img.get_pixel(x+1,y-1);
+                    if *alt != sample && *alt != Rgb([255,255,255]) && *alt != Rgb([10,10,10])
+                    {
+                        &img.put_pixel(x,y,Rgb([255,255,255]));
+                        border = true;
+                    }
+                }
+                if y+1 < l && !border
+                {
+                    //0,+1
+                    let alt = img.get_pixel(x,y+1);
+                    if *alt != sample && *alt != Rgb([255,255,255]) && *alt != Rgb([10,10,10])
+                    {
+                        &img.put_pixel(x,y,Rgb([255,255,255]));
+                        border = true;
+                    }
+                }
+                if x+1 < w && !border
+                {
+                    //1,0
+                    let alt = img.get_pixel(x+1,y);
+                    if *alt != sample && *alt != Rgb([255,255,255]) && *alt != Rgb([10,10,10])
+                    {
+                        &img.put_pixel(x,y,Rgb([255,255,255]));
+                        border = true;
+                    }
+                }
+                if (x+1 < w) && (y+1 < l) && !border
+                {
+                    //1,1
+                    let alt = img.get_pixel(x+1,y+1);
+                    if *alt != sample && *alt != Rgb([255,255,255]) && *alt != Rgb([10,10,10])
+                    {
+                        &img.put_pixel(x,y,Rgb([255,255,255]));
+                        border = true;
+                    }
+                }
+                if (x as i32) -1  >= 0 && !border
+                {
+                    //-1,0
+                    let alt = img.get_pixel(x-1,y);
+                    if *alt != sample && *alt != Rgb([255,255,255]) && *alt != Rgb([10,10,10])
+                    {
+                        &img.put_pixel(x,y,Rgb([255,255,255]));
+                        border = true;
+                    }
+
+                }
+                if ((x as i32) -1 >= 0) && (y+1 < l) && !border
+                {
+                    //-1,1
+                    let alt = img.get_pixel(x-1,y+1);
+                    if *alt != sample && *alt != Rgb([255,255,255]) && *alt != Rgb([10,10,10])
+                    {
+                        &img.put_pixel(x,y,Rgb([255,255,255]));
+                        border = true;
+                    }
+                }
+
+            }
 
         }
     }
@@ -240,15 +335,15 @@ fn gen_seeds(count:u16,height:u32,width:u32,points:&mut VecDeque<((u32,u32),[u8;
 }
 
 fn main() {
-    const HEIGHT: u32 = 2160;
-    const WIDTH: u32 = 3840;
-    const SEEDS:u16 = 20;
+    const HEIGHT: u32 = 1024;
+    const WIDTH: u32 = 1024;
+    const SEEDS:u16 = 75;
     let mut img:RgbImage = RgbImage::new(WIDTH,HEIGHT);
 
     //submit a point and a color for the point suggested.
     let mut points:VecDeque<((u32,u32),[u8;3])> = VecDeque::new();
     gen_seeds(SEEDS,HEIGHT,WIDTH,&mut points);
-    draw_cells(&mut img, HEIGHT, WIDTH, &mut points, false);
+    draw_cells(&mut img, HEIGHT, WIDTH, &mut points, true);
     // while points.len() > 0
     // {
     //     let point = points.pop_front().unwrap();
